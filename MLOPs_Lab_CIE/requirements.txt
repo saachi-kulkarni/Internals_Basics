@@ -1,4 +1,9 @@
-mlflow
 pandas
 numpy
 scikit-learn
+joblib
+mlflow
+fastapi
+uvicorn
+requests
+
