@@ -1,0 +1,7 @@
+{
+    "registered_model_name": "powergrid-energy-kwh-predictor",
+    "version": 2,
+    "run_id": "88cda533d8c2463cb6adfbc8d17123bc",
+    "source_metric": "mae",
+    "source_metric_value": 72.64638097364217
+}

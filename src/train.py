@@ -1,67 +1,35 @@
 import pandas as pd
 import mlflow
 import mlflow.sklearn
-from sklearn.linear_model import Ridge
+from sklearn.model_selection import train_test_split
 from sklearn.ensemble import GradientBoostingRegressor
-from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
-import joblib
-import json
-import os
+from sklearn.metrics import mean_absolute_error, mean_squared_error
+import numpy as np
 
+# Load data
 df = pd.read_csv("data/training_data.csv")
 
-X = df.drop("energy_kwh", axis=1)
+X = df[["temperature_c", "building_sqm", "occupancy_pct", "is_weekday"]]
 y = df["energy_kwh"]
 
-models = {
-    "Ridge": Ridge(),
-    "GradientBoosting": GradientBoostingRegressor()
-}
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
-results = []
+model = GradientBoostingRegressor()
 
 mlflow.set_experiment("powergrid-energy-kwh")
 
-for name, model in models.items():
-    with mlflow.start_run():
-        model.fit(X, y)
-        preds = model.predict(X)
+with mlflow.start_run():
+    model.fit(X_train, y_train)
 
-        mae = mean_absolute_error(y, preds)
-        rmse = mean_squared_error(y, preds) ** 0.5
-        r2 = r2_score(y, preds)
-        mape = (abs((y - preds) / y)).mean()
+    preds = model.predict(X_test)
 
-        mlflow.log_param("model", name)
-        mlflow.log_metric("mae", mae)
-        mlflow.log_metric("rmse", rmse)
-        mlflow.log_metric("r2", r2)
-        mlflow.log_metric("mape", mape)
+    mae = mean_absolute_error(y_test, preds)
+    rmse = np.sqrt(mean_squared_error(y_test, preds))
 
-        results.append({
-            "name": name,
-            "mae": mae,
-            "rmse": rmse,
-            "r2": r2,
-            "mape": mape
-        })
+    mlflow.log_metric("mae", mae)
+    mlflow.log_metric("rmse", rmse)
 
-best = min(results, key=lambda x: x["mae"])
+    # IMPORTANT
+    mlflow.sklearn.log_model(model, "model")
 
-best_model = models[best["name"]]
-best_model.fit(X, y)
-
-os.makedirs("models", exist_ok=True)
-joblib.dump(best_model, "models/model.pkl")
-
-os.makedirs("results", exist_ok=True)
-with open("results/step1_s1.json", "w") as f:
-    json.dump({
-        "experiment_name": "powergrid-energy-kwh",
-        "models": results,
-        "best_model": best["name"],
-        "best_metric_name": "mae",
-        "best_metric_value": best["mae"]
-    }, f, indent=4)
-
-print("✅ Task 1 complete")
+    print("Training done. MAE:", mae)
