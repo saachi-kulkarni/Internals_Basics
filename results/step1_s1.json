@@ -1,0 +1,22 @@
+{
+    "experiment_name": "powergrid-energy-kwh",
+    "models": [
+        {
+            "name": "Ridge",
+            "mae": 42.262991536065,
+            "rmse": 51.48161737724634,
+            "r2": 0.8671582603630086,
+            "mape": 0.13315302446987543
+        },
+        {
+            "name": "GradientBoosting",
+            "mae": 0.4140752912158757,
+            "rmse": 0.5490835383407939,
+            "r2": 0.9999848885187511,
+            "mape": 0.0009631412871873713
+        }
+    ],
+    "best_model": "GradientBoosting",
+    "best_metric_name": "mae",
+    "best_metric_value": 0.4140752912158757
+}
