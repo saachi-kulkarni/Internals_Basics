@@ -5,3 +5,9 @@ models/
 logs/
 mlflow.db
 mlruns/
+<<<<<<< HEAD:.gitignore
+=======
+.DS_Store
+*.log
+
+>>>>>>> 081b8bc0 (Moved everything inside MLOPs_Lab_CIE folder):MLOPs_Lab_CIE/.gitignore
