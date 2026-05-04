@@ -2,38 +2,45 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 import joblib
 import numpy as np
+import json
+import os
+from datetime import datetime
 
-# Load trained model
-model = joblib.load("models/model.pkl")
-
-# Create app
 app = FastAPI()
 
-# Input schema
+model = joblib.load("models/model.pkl")
+
+LOG_FILE = "logs/predictions.jsonl"
+os.makedirs("logs", exist_ok=True)
+
 class Input(BaseModel):
     temperature_c: float
     building_sqm: float
     occupancy_pct: float
     is_weekday: int
 
-# Health check
 @app.get("/status")
 def status():
-    return {
-        "status": "operational",
-        "service": "PowerGrid API"
-    }
+    return {"status": "operational", "service": "PowerGrid API"}
 
-# Prediction endpoint
 @app.post("/estimate")
 def estimate(data: Input):
-    arr = np.array([[data.temperature_c,
-                     data.building_sqm,
-                     data.occupancy_pct,
-                     data.is_weekday]])
+    arr = [[
+        data.temperature_c,
+        data.building_sqm,
+        data.occupancy_pct,
+        data.is_weekday
+    ]]
 
-    pred = model.predict(arr)[0]
+    pred = float(model.predict(arr)[0])
 
-    return {
-        "prediction": float(pred)
+    log_entry = {
+        "timestamp": datetime.now().isoformat(),
+        "input": data.dict(),
+        "prediction": pred
     }
+
+    with open(LOG_FILE, "a") as f:
+        f.write(json.dumps(log_entry) + "\n")
+
+    return {"prediction": pred}

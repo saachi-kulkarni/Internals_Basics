@@ -1,0 +1,8 @@
+{
+  "health_endpoint": "/status",
+  "predict_endpoint": "/estimate",
+  "port": 8080,
+  "health_response": {"status":"operational","service":"PowerGrid API"},
+  "test_input": {"temperature_c": 28.7, "building_sqm": 299.5, "occupancy_pct": 54.7, "is_weekday": 0},
+  "prediction": 379.6025518201587
+}
